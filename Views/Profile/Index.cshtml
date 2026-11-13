@@ -1,0 +1,125 @@
+﻿@model DevFaceHub.ViewModels.ProfileViewModel
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<DevFaceHub.Models.ApplicationUser> UserManager
+
+@{
+    ViewData["Title"] = "Trang cá nhân";
+    var currentUserId = UserManager.GetUserId(User);
+    bool isMyProfile = Model.UserInfo.Id == currentUserId;
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+
+        <!-- Khung Thông tin cá nhân -->
+        <div class="card shadow-sm mb-4 border-0" style="border-radius: 15px; overflow: hidden;">
+            <div class="bg-dark w-100" style="height: 150px;"></div>
+
+            <div class="card-body text-center" style="margin-top: -60px;">
+                <!-- Avatar -->
+                <div class="bg-white rounded-circle d-inline-block p-1 shadow mb-3">
+                    @if (!string.IsNullOrEmpty(Model.UserInfo.AvatarUrl))
+                    {
+                        <img src="@Model.UserInfo.AvatarUrl" class="rounded-circle" style="width: 120px; height: 120px; object-fit: cover;" />
+                    }
+                    else
+                    {
+                        <div class="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 120px; height: 120px; font-size: 3rem; font-weight: bold;">
+                            @(Model.UserInfo.FullName?.Substring(0, 1).ToUpper() ?? Model.UserInfo.UserName?.Substring(0, 1).ToUpper())
+                        </div>
+                    }
+                </div>
+
+                <!-- Chi tiết người dùng -->
+                <h3 class="card-title fw-bold mb-1">@(Model.UserInfo.FullName ?? "Người dùng ẩn danh")</h3>
+                <p class="text-muted mb-1">@Model.UserInfo.Email</p>
+                <p class="small text-secondary mb-3">📅 Tham gia vào: @Model.UserInfo.JoinDate.ToString("MMMM yyyy")</p>
+
+                <hr class="w-75 mx-auto" />
+            </div>
+        </div>
+
+        <h5 class="mb-3 fw-bold">Bài đăng của @(isMyProfile ? "bạn" : Model.UserInfo.FullName)</h5>
+
+        <!-- Danh sách bài đăng -->
+        @if (!Model.UserPosts.Any())
+        {
+            <div class="card border-0 shadow-sm p-5 text-center">
+                <h5 class="text-muted">Bạn chưa có bài đăng nào.</h5>
+                <p class="text-secondary small">Hãy chia sẻ khoảnh khắc đầu tiên của bạn với mọi người!</p>
+            </div>
+        }
+        else
+        {
+            @foreach (var post in Model.UserPosts)
+            {
+                bool isLikedByMe = post.Likes.Any(l => l.UserId == currentUserId);
+
+                <div class="card shadow-sm mb-4 border-0">
+                    <div class="card-body">
+                        <!-- Thông tin người đăng (Header Bài đăng) -->
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 45px; height: 45px; font-weight: bold;">
+                                @(post.User?.FullName?.Substring(0, 1).ToUpper() ?? "U")
+                            </div>
+                            <div>
+                                <h6 class="mb-0 fw-bold">@(post.User?.FullName ?? post.User?.UserName)</h6>
+                                <small class="text-muted">@post.CreatedAt.ToString("dd/MM/yyyy HH:mm")</small>
+                            </div>
+                        </div>
+
+                        <!-- Nội dung -->
+                        <p class="card-text fs-5">@post.Content</p>
+
+                        <!-- Hình ảnh -->
+                        @if (!string.IsNullOrEmpty(post.ImageUrl))
+                        {
+                            <div class="mb-3 rounded overflow-hidden">
+                                <img src="@post.ImageUrl" class="img-fluid w-100" alt="Post image" style="max-height: 500px; object-fit: cover;" />
+                            </div>
+                        }
+
+                        <hr />
+
+                        <!-- Tương tác -->
+                        <div class="d-flex justify-content-between text-muted small mb-3 px-2">
+                            <span><span class="like-count-display-@post.PostId fw-bold">@post.Likes.Count</span> lượt thích</span>
+                            <span><span class="fw-bold">@post.Comments.Count</span> bình luận</span>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Tái sử dụng script AJAX xử lý Like
+        document.querySelectorAll('.btn-like').forEach(button => {
+            button.addEventListener('click', async function () {
+                const postId = this.getAttribute('data-post-id');
+                const url = '/Home/ToggleLike';
+                const formData = new FormData();
+                formData.append('postId', postId);
+
+                try {
+                    const response = await fetch(url, { method: 'POST', body: formData });
+                    if (response.ok) {
+                        const result = await response.json();
+                        this.querySelector('.like-count').innerText = result.totalLikes;
+                        document.querySelector('.like-count-display-' + postId).innerText = result.totalLikes;
+
+                        if (result.isLiked) {
+                            this.classList.remove('btn-light', 'text-muted');
+                            this.classList.add('btn-primary', 'text-white');
+                        } else {
+                            this.classList.remove('btn-primary', 'text-white');
+                            this.classList.add('btn-light', 'text-muted');
+                        }
+                    }
+                } catch (error) { console.error(error); }
+            });
+        });
+    </script>
+}

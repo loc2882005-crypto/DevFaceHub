@@ -1,0 +1,29 @@
+## .NET / Visual Studio
+bin/
+obj/
+.vs/
+*.user
+*.suo
+*.userprefs
+*.rsuser
+*.log
+[Dd]ebug/
+[Rr]elease/
+publish/
+*.publish.xml
+TestResults/
+
+## Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+## Local config / secrets
+appsettings.*.local.json
+secrets.json
+.env
+
+## User-uploaded images (keep the folder, not the files)
+wwwroot/images/posts/*
+!wwwroot/images/posts/.gitkeep

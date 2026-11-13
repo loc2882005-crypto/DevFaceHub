@@ -1,0 +1,67 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using DevFaceHub.Models
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+@{
+    var currentUser = await UserManager.GetUserAsync(User);
+}
+
+<ul class="navbar-nav">
+    @if (SignInManager.IsSignedIn(User) && currentUser != null)
+    {
+        <!-- Tạo khung Avatar hình tròn hoặc chữ cái đầu -->
+        var initial = currentUser.FullName?.Substring(0, 1).ToUpper() ?? currentUser.UserName?.Substring(0, 1).ToUpper();
+
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                @if (!string.IsNullOrEmpty(currentUser.AvatarUrl))
+                {
+                    <img src="@currentUser.AvatarUrl" alt="Avatar" class="rounded-circle" style="width: 35px; height: 35px; object-fit: cover;" />
+                }
+                else
+                {
+                    <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 35px; height: 35px; font-weight: bold;">
+                        @initial
+                    </div>
+                }
+            </a>
+
+            <!-- Menu Dropdown tối màu (Dark Mode) -->
+            <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark shadow" aria-labelledby="userDropdown">
+                <!-- Thông tin tài khoản -->
+                <li class="px-3 py-2 text-center border-bottom border-secondary mb-2">
+                    <h6 class="mb-0 text-white">@(currentUser.FullName ?? currentUser.UserName)</h6>
+                    <small class="text-light">@currentUser.Email</small>
+                </li>
+
+                <!-- Nút Xem trang cá nhân -->
+                <li>
+                    <a class="dropdown-item d-flex align-items-center gap-2 py-2" asp-controller="Profile" asp-action="Index">
+                        👤 Xem trang cá nhân
+                    </a>
+                </li>
+
+                <li><hr class="dropdown-divider border-secondary"></li>
+
+                <!-- Nút Đăng xuất -->
+                <li>
+                    <form class="form-inline" asp-controller="Account" asp-action="Logout" method="post">
+                        <button type="submit" class="dropdown-item d-flex align-items-center gap-2 py-2 text-danger">
+                            🚪 Đăng xuất
+                        </button>
+                    </form>
+                </li>
+            </ul>
+        </li>
+    }
+    else
+    {
+        <li class="nav-item">
+            <a class="nav-link text-dark fw-bold" asp-controller="Account" asp-action="Register">Đăng ký</a>
+        </li>
+        <li class="nav-item">
+            <a class="btn btn-primary btn-sm mt-1 ms-2 px-3" asp-controller="Account" asp-action="Login">Đăng nhập</a>
+        </li>
+    }
+</ul>

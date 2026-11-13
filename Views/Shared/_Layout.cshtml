@@ -1,0 +1,340 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - DevFaceHub</title>
+    <script type="importmap"></script>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/DevFaceHub.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        /* Vùng chứa Navbar (Sáng) */
+        .fb-nav-container {
+            background-color: #FFFFFF;
+            border-bottom: 1px solid #CED0D4;
+            height: 56px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            z-index: 1030;
+        }
+
+        /* --- CỘT TRÁI: Tìm kiếm --- */
+        .fb-nav-search-box {
+            background-color: #F0F2F5;
+            border-radius: 999px;
+            height: 40px;
+            transition: background-color 0.2s;
+            border: none;
+        }
+
+            .fb-nav-search-box:focus-within {
+                background-color: #E4E6EB;
+            }
+
+        .fb-nav-search-input {
+            background: transparent;
+            border: none;
+            color: #050505;
+            outline: none;
+            width: 220px;
+        }
+
+            .fb-nav-search-input::placeholder {
+                color: #65676B;
+            }
+
+        /* --- CỘT GIỮA: Điều hướng chính --- */
+        .fb-nav-mid-ul {
+            height: 56px;
+        }
+
+        .fb-nav-mid-btn {
+            width: 110px;
+            height: 56px;
+            color: #65676B;
+            border-bottom: 3px solid transparent;
+            transition: color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .fb-nav-mid-btn-inner {
+            width: 100%;
+            height: 48px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s;
+        }
+        /* Hover khi không active */
+        .fb-nav-mid-btn:not(.fb-nav-active):hover .fb-nav-mid-btn-inner {
+            background-color: #F0F2F5;
+            color: #65676B;
+        }
+        /* Trạng thái Active */
+        .fb-nav-active {
+            color: #0866FF !important;
+            border-bottom: 3px solid #0866FF;
+        }
+
+            .fb-nav-active .fb-nav-mid-btn-inner {
+                color: #0866FF;
+            }
+
+        /* --- CỘT PHẢI: Thông báo & Avatar --- */
+        .fb-nav-icon-btn {
+            width: 40px;
+            height: 40px;
+            background-color: #E4E6EB;
+            border-radius: 50%;
+            color: #050505;
+            transition: background-color 0.2s;
+            border: none;
+            outline: none;
+        }
+
+            .fb-nav-icon-btn:hover {
+                background-color: #D8DADF;
+            }
+
+        .fb-nav-badge {
+            background-color: #F02849;
+            font-size: 11px;
+            padding: 3px 5px;
+            border: 2px solid #FFFFFF; /* Viền trắng để cắt với nền nút */
+        }
+
+        /* Avatar */
+        .fb-nav-avatar-fallback {
+            background-color: #E4E6EB;
+            color: #050505;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .fb-nav-chevron-badge {
+            width: 16px;
+            height: 16px;
+            background-color: #E4E6EB;
+            border-radius: 50%;
+            color: #050505;
+            right: -2px;
+            bottom: -2px;
+            border: 2px solid #FFFFFF;
+        }
+
+        /* Dropdown Profile */
+        .fb-nav-dropdown {
+            background-color: #FFFFFF;
+            border: none;
+            border-radius: 12px;
+            min-width: 300px;
+            box-shadow: 0 12px 28px 0 rgba(0,0,0,0.2), 0 2px 4px 0 rgba(0,0,0,0.1);
+        }
+
+            .fb-nav-dropdown .dropdown-item {
+                color: #050505;
+                transition: background-color 0.2s;
+            }
+
+                .fb-nav-dropdown .dropdown-item:hover {
+                    background-color: #F0F2F5;
+                    border-radius: 8px;
+                    margin: 0 8px;
+                    width: calc(100% - 16px);
+                }
+
+            .fb-nav-dropdown .dropdown-divider {
+                border-color: #CED0D4;
+            }
+
+        /* --- RESPONSIVE MOBILE --- */
+        @@media (max-width: 767.98px) {
+            .fb-nav-search-input {
+                display: none; /* Ẩn ô nhập chữ */
+            }
+
+            .fb-nav-search-box {
+                width: 40px;
+                padding: 0 !important;
+                justify-content: center;
+            }
+
+            .fb-nav-mid-btn {
+                width: 100%; /* Giãn đều các nút giữa */
+            }
+
+            .fb-nav-mid-ul {
+                flex-grow: 1;
+                justify-content: space-evenly !important;
+            }
+
+            .fb-nav-brand {
+                display: none; /* (Tùy chọn) Ẩn logo DevFaceHub nếu chật */
+            }
+        }
+    </style>
+</head>
+<body>
+    @using Microsoft.AspNetCore.Identity
+    @inject SignInManager<DevFaceHub.Models.ApplicationUser> SignInManager
+    @inject UserManager<DevFaceHub.Models.ApplicationUser> UserManager
+    @{
+        var currentUser = await UserManager.GetUserAsync(User);
+        var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+        var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+    }
+
+    <header>
+        <nav class="navbar sticky-top fb-nav-container p-0">
+            <div class="container-fluid px-3 d-flex justify-content-between align-items-center h-100">
+
+                <!-- CỘT TRÁI: Logo & Tìm kiếm -->
+                <div class="d-flex align-items-center gap-2" style="width: 25%;">
+                    <a class="navbar-brand text-primary fw-bold fs-3 mb-0 me-1 fb-nav-brand" asp-controller="Home" asp-action="Index">
+                        <i class="bi bi-facebook" style="color: #0866FF;"></i>
+                    </a>
+
+                    <!-- GHI CHÚ: Sửa action="/Home/Index" thành Controller tìm kiếm thực tế của bạn -->
+                    <form method="get" action="/Home/Index" class="m-0">
+                        <div class="fb-nav-search-box d-flex align-items-center px-3">
+                            <i class="bi bi-search text-secondary"></i>
+                            <input type="text" name="q" class="fb-nav-search-input ms-2" placeholder="Tìm kiếm trên DevFaceHub" autocomplete="off" />
+                        </div>
+                    </form>
+                </div>
+
+                <!-- CỘT GIỮA: Các nút điều hướng (Chỉ hiện khi đã đăng nhập) -->
+                @if (SignInManager.IsSignedIn(User))
+                {
+                    <ul class="navbar-nav flex-row justify-content-center align-items-center fb-nav-mid-ul m-0 p-0" style="flex-grow: 1;">
+                        <!-- Trang Chủ -->
+                        <li class="nav-item h-100 flex-grow-1 flex-md-grow-0">
+                            <a class="text-decoration-none fb-nav-mid-btn @(currentController == "Home" ? "fb-nav-active" : "")" asp-controller="Home" asp-action="Index" title="Trang chủ">
+                                <div class="fb-nav-mid-btn-inner">
+                                    <i class="bi bi-house-door-fill fs-4"></i>
+                                </div>
+                            </a>
+                        </li>
+
+                        <!-- CV -->
+                        <li class="nav-item h-100 flex-grow-1 flex-md-grow-0">
+                            <a class="text-decoration-none fb-nav-mid-btn @(currentController == "Home" && currentAction == "Cv" ? "fb-nav-active" : "")" asp-controller="Home" asp-action="Cv" title="CV">
+                                <div class="fb-nav-mid-btn-inner">
+                                    <i class="bi bi-file-earmark-text-fill fs-4"></i>
+                                </div>
+                            </a>
+                        </li>
+
+                        <!-- Nhóm -->
+                        <li class="nav-item h-100 flex-grow-1 flex-md-grow-0">
+                            <!-- GHI CHÚ: Đổi href="#" thành asp-controller/action khi tạo chức năng Nhóm -->
+                            <a class="text-decoration-none fb-nav-mid-btn" href="#" title="Nhóm">
+                                <div class="fb-nav-mid-btn-inner">
+                                    <i class="bi bi-collection-fill fs-4"></i>
+                                </div>
+                            </a>
+                        </li>
+                    </ul>
+                }
+
+                <!-- CỘT PHẢI: Thông báo & Tài khoản -->
+                <div class="d-flex align-items-center justify-content-end gap-2" style="width: 25%;">
+                    @if (SignInManager.IsSignedIn(User) && currentUser != null)
+                    {
+                        <!-- Nút Thông báo -->
+                        <button class="fb-nav-icon-btn position-relative d-flex align-items-center justify-content-center" type="button">
+                            <i class="bi bi-bell-fill fs-5"></i>
+                            <!-- GHI CHÚ: Cập nhật số 3 cứng thành biến đếm Notification từ DB -->
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill fb-nav-badge text-white">
+                                3
+                            </span>
+                        </button>
+
+                        <!-- Avatar Dropdown -->
+                        <div class="dropdown">
+                            <div class="position-relative d-flex align-items-center justify-content-center" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                @if (!string.IsNullOrEmpty(currentUser.AvatarUrl))
+                                {
+                                    <img src="@currentUser.AvatarUrl" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;" />
+                                }
+                                else
+                                {
+                                    <div class="rounded-circle fb-nav-avatar-fallback d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                        @(currentUser.FullName?.Substring(0, 1).ToUpper() ?? currentUser.UserName?.Substring(0, 1).ToUpper() ?? "U")
+                                    </div>
+                                }
+
+                                <!-- Icon mũi tên nhỏ đè lên góc phải avatar -->
+                                <div class="position-absolute fb-nav-chevron-badge d-flex align-items-center justify-content-center">
+                                    <i class="bi bi-chevron-down" style="font-size: 10px; font-weight: bold;"></i>
+                                </div>
+                            </div>
+
+                            <!-- Menu Dropdown -->
+                            <ul class="dropdown-menu dropdown-menu-end fb-nav-dropdown mt-2 p-2">
+                                <li>
+                                    <a class="dropdown-item d-flex align-items-center gap-3 p-2 rounded" asp-controller="Profile" asp-action="Index">
+                                        @if (!string.IsNullOrEmpty(currentUser.AvatarUrl))
+                                        {
+                                            <img src="@currentUser.AvatarUrl" class="rounded-circle" style="width: 36px; height: 36px; object-fit: cover;" />
+                                        }
+                                        else
+                                        {
+                                            <div class="rounded-circle fb-nav-avatar-fallback d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; font-size: 1rem;">
+                                                @(currentUser.FullName?.Substring(0, 1).ToUpper() ?? currentUser.UserName?.Substring(0, 1).ToUpper() ?? "U")
+                                            </div>
+                                        }
+                                        <div>
+                                            <div class="fw-bold text-dark" style="font-size: 1.05rem;">@(currentUser.FullName ?? currentUser.UserName)</div>
+                                            <small class="text-muted">Xem trang cá nhân của bạn</small>
+                                        </div>
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider my-2"></li>
+                                <li>
+                                    <form asp-controller="Account" asp-action="Logout" method="post" class="m-0">
+                                        <!-- Đã sửa text-white thành text-dark ở đây -->
+                                        <button type="submit" class="dropdown-item d-flex align-items-center gap-3 p-2 rounded text-dark bg-transparent border-0 w-100 text-start">
+                                            <div class="fb-nav-icon-btn d-flex align-items-center justify-content-center m-0" style="width: 36px; height: 36px;">
+                                                <i class="bi bi-box-arrow-right fs-5"></i>
+                                            </div>
+                                            <span class="fw-semibold">Đăng xuất</span>
+                                        </button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
+                    }
+                    else
+                    {
+                        <!-- Trạng thái Chưa Đăng Nhập -->
+                        <a class="btn btn-outline-dark btn-sm fw-bold rounded-pill px-3" asp-controller="Account" asp-action="Register">Đăng ký</a>
+                        <a class="btn btn-primary btn-sm fw-bold rounded-pill px-3" asp-controller="Account" asp-action="Login">Đăng nhập</a>
+                    }
+                </div>
+
+            </div>
+        </nav>
+    </header>
+
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; 2026 - DevFaceHub - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+        </div>
+    </footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

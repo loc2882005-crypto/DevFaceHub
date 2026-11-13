@@ -1,0 +1,119 @@
+@{
+    ViewData["Title"] = "CV";
+}
+
+<style>
+    .cv-page {
+        max-width: 1100px;
+        margin: 28px auto 0;
+        background: #ffffff;
+        color: #111111;
+        font-family: Arial, Helvetica, sans-serif;
+    }
+
+    .cv-container {
+        width: 100%;
+        border-top: 1px solid #111111;
+        padding-top: 8px;
+    }
+
+    .cv-header {
+        font-size: 2.0rem;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        margin: 0 0 18px;
+        text-transform: uppercase;
+    }
+
+    .cv-project {
+        border-top: 1px solid #111111;
+        padding-top: 18px;
+    }
+
+    .cv-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 24px;
+        margin-bottom: 18px;
+    }
+
+    .cv-field {
+        flex: 1;
+        font-size: 1.05rem;
+        line-height: 1.6;
+        color: #111111;
+    }
+
+    .cv-field strong {
+        font-weight: 600;
+    }
+
+    .cv-time {
+        flex-shrink: 0;
+        font-size: 1.05rem;
+        line-height: 1.6;
+        text-align: right;
+        white-space: nowrap;
+        color: #111111;
+    }
+
+    .cv-description {
+        max-width: 760px;
+        color: #111111;
+        line-height: 1.7;
+        font-size: 1.05rem;
+    }
+
+    @@media (max-width: 768px) {
+        .cv-page {
+            margin-top: 18px;
+            padding: 0 12px;
+        }
+
+        .cv-row {
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .cv-time {
+            text-align: left;
+            white-space: normal;
+        }
+
+        .cv-header {
+            font-size: 1.6rem;
+        }
+    }
+</style>
+
+<div class="cv-page">
+    <div class="cv-container">
+        <h2 class="cv-header">Projects</h2>
+
+        <div class="cv-project">
+            <div class="cv-row">
+                <div class="cv-field"><strong>Tên dự án</strong></div>
+                <div class="cv-time">Nov 2026 - Recent</div>
+            </div>
+
+            <div class="cv-row">
+                <div class="cv-field"><strong>Vị trí của bạn trong dự án</strong></div>
+            </div>
+
+            <div class="cv-row">
+                <div class="cv-field">Full-stack Developer / Backend &amp; UI</div>
+            </div>
+
+            <div class="cv-row">
+                <div class="cv-field"><strong>Mô tả</strong></div>
+            </div>
+
+            <div class="cv-row">
+                <div class="cv-description">
+                    DevFaceHub là ứng dụng mạng xã hội được xây dựng bằng ASP.NET Core MVC, ASP.NET Core Identity, Entity Framework Core và SQL Server. Tôi tham gia trong toàn bộ quy trình từ thiết kế chức năng, xây dựng backend, tích hợp xác thực người dùng, quản lý bài đăng, thích và bình luận, cho đến phát triển giao diện cá nhân và trang chủ theo hướng hiện đại, thân thiện với người dùng.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
